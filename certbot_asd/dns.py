@@ -32,6 +32,7 @@ class Authenticator(dns_common.DNSAuthenticator):
     def __init__(self, *args, **kwargs):
         super(Authenticator, self).__init__(*args, **kwargs)
         self.credentials = None
+        self.asd_client = None
 
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
@@ -58,9 +59,10 @@ class Authenticator(dns_common.DNSAuthenticator):
             # Certbot INI-style file, we don't use the certbot helper
             # functions to validate the file contents e.g.
             # self._configure_credentials() and self._validate_credentials()
+        self.asd_client = _AsdClient(credentials_json=self.conf('credentials'))
 
     def _perform(self, _domain, validation_domain_name, validation):
-        return self._get_asd_client().modify_txt_record(validation_domain_name, validation)
+        return self.asd_client.modify_txt_record(validation_domain_name, validation)
 
     def _cleanup(self, _domain, validation_domain_name, _validation):
         """
@@ -79,10 +81,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         # FIXME we should test the current value (does the ASD API provide this?)
         # and if it matches the contents of the validation variable, only then
         # should we do this:
-        return self._get_asd_client().modify_txt_record(validation_domain_name, '')
-
-    def _get_asd_client(self):
-        return _AsdClient(credentials_json=self.conf('credentials'))
+        return self.asd_client.modify_txt_record(validation_domain_name, '')
 
 
 class _AsdClient(object):
