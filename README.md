@@ -85,6 +85,23 @@ https://certbot.eff.org/docs/using.html#combining-plugins .
 1. Once you have finished testing, obtain a production certificate by repeating
 your previous command, having first removed the `--staging` argument to `certbot`.
 
+
+If your certificate request will need more than one challenge to be verified
+against a single TXT record (e.g. if you request a single certificate, which is
+valid for both `example.com` and the wildcard `*.example.com`, then you will
+need to create multiple records via the ASD control panel, and then list the
+corresponding multiple keys like this:
+    ```json
+    {
+            "dns_api_keys": {
+                    "_acme-challenge.example.com": {
+                            "domain": "example.com",
+                            "key": ["e18a608f-e5c2-418f-bfd5-847df39280a8", "5f91a2f8-5797-4b4e-a723-3adfcb1c2c88"]
+                    }
+            }
+    }
+    ```
+
 Bugs?
 ----
 

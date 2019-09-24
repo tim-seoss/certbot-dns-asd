@@ -62,9 +62,9 @@ class Authenticator(dns_common.DNSAuthenticator):
         self.asd_client = _AsdClient(credentials_json=self.conf('credentials'))
 
     def _perform(self, _domain, validation_domain_name, validation):
-        return self.asd_client.modify_txt_record(validation_domain_name, validation)
+        return self.asd_client.modify_txt_record(validation_domain_name, validation, False)
 
-    def _cleanup(self, _domain, validation_domain_name, _validation):
+    def _cleanup(self, _domain, validation_domain_name, validation):
         """
         Deletes the DNS TXT record which would have been created by `_perform_achall`.
 
@@ -76,12 +76,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         """
         # There is currently no ASD DNS API for TXT record deletion, so we
         # change the record content to the empty string instead.
-        # can set this to the empty string.
-        #
-        # FIXME we should test the current value (does the ASD API provide this?)
-        # and if it matches the contents of the validation variable, only then
-        # should we do this:
-        return self.asd_client.modify_txt_record(validation_domain_name, '')
+        return self.asd_client.modify_txt_record(validation_domain_name, validation, True)
 
 
 class _AsdClient(object):
@@ -92,6 +87,7 @@ class _AsdClient(object):
         #import ipdb; ipdb.set_trace()
         import pprint
         self.cred_filename = credentials_json
+        self.auth_token_map = dict()
         with open(self.cred_filename) as asd_info:
             try:
                 self.config = json.load(asd_info)
@@ -114,7 +110,7 @@ class _AsdClient(object):
                          " please check...", self.cred_filename)
             exit(1)
 
-    def modify_txt_record(self, dynamic_fqdn, new_content):
+    def modify_txt_record(self, dynamic_fqdn, new_content, deletion_requested):
         """
         Bodge - only works with pre-existing keys, but does modify content.
 
@@ -124,19 +120,36 @@ class _AsdClient(object):
         :raises certbot.errors.PluginError: if an error occurs communicating with the DNS server
         """
         LOGGER.debug("Modify txt record for: %s", str(dynamic_fqdn))
-        #data = []
-        try:
-            domain = self.config['dns_api_keys'][dynamic_fqdn]['domain']
-            LOGGER.debug("ASD domain: %s", domain)
+        if deletion_requested:
+            query_params = {'domain': self.auth_token_map[new_content]['asd_domain'],
+                            'hostname': self.auth_token_map[new_content]['hostname'],
+                            'key': self.auth_token_map[new_content]['asd_auth_key'],
+                            'myip': 'X'}
+        else:
+            try:
+                domain = self.config['dns_api_keys'][dynamic_fqdn]['domain']
+                LOGGER.debug("ASD domain: %s", domain)
+            except KeyError:
+                print("Sorry, there doesn't seem to be a key for " + dynamic_fqdn + " in: " +
+                      self.cred_filename + " Please add one and try again.")
+                exit(1)
             hostname = dynamic_fqdn.replace('.' + domain, '')
             LOGGER.debug("ASD hostname: %s", hostname)
-            key = self.config['dns_api_keys'][dynamic_fqdn]['key']
-        except KeyError:
-            print("Sorry, there doesn't seem to be a key for " + dynamic_fqdn + " in: " +
-                  self.cred_filename + " Please add one and try again.")
-            exit(1)
+            try:
+                if isinstance(self.config['dns_api_keys'][dynamic_fqdn]['key'], str):
+                    key = self.config['dns_api_keys'][dynamic_fqdn]['key']
+                else:
+                    key = self.config['dns_api_keys'][dynamic_fqdn]['key'].pop()
+            except KeyError:
+                print("Sorry, there is any entry for for " + dynamic_fqdn + " in: " +
+                      self.cred_filename + " but it doesn't contain an ASD auth key." +
+                      "Please add one and try again.")
+                exit(1)
+            self.auth_token_map[new_content] = {'asd_auth_key': key,
+                                                'hostname': hostname,
+                                                'asd_domain': domain}
+            query_params = {'domain': domain, 'hostname': hostname, 'key': key, 'myip': new_content}
 
-        query_params = {'domain': domain, 'hostname': hostname, 'key': key, 'myip': new_content}
         req = requests.request('GET', self.api_endpoint, params=query_params)
         # FIXME, check ASD API docs and handle common failures here?
         req.raise_for_status()
