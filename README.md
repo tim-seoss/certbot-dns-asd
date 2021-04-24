@@ -26,15 +26,11 @@ Installation
 1. Install Certbot (for Debian-based OS e.g. Ubuntu Linux), run the following
 command (or the equivalent for your OS) as root:
 
-    `apt install git certbot python3-pip`
+    `apt install --no-install-recommends certbot git python3-pip`
 
-1. Run the following command as an unprivileged user:
+1. Run the following command as root:
 
-    `git clone https://github.com/tim-seoss/certbot-dns-asd.git`
-
-1. Run the following as root:
-
-    `pip3 install /path/to/certbot-dns-asd/`
+    `pip3 install git+https://github.com/tim-seoss/certbot-dns-asd.git`
 
 Usage
 -----
@@ -47,7 +43,12 @@ the `example.com` domain using the ASD DNS service...
 of the form `_acme-challenge.my-ssl-hostname` within the `example.com` DNS
 management settings.  For each newly created _acme-challenge TXT record, tick
 the `Enable dynamic (API) upates` box.  Copy the "UUID" which ASD provides you
-for the record(s) and use them in the next step:
+for the record(s) and use them in steps below.
+
+1. To obtain wildcard certificates, e.g. for `*.example.com`, you will need to
+create a TXT record at `_acme-challenge.example.com` (note there is no `*`
+in the DNS record name, see also the note below if you need to obtain a
+certificate for **both** `example.com` **and** `*.example.com`).
 
 1. Create a JSON file based on the following example:
     ```json
@@ -91,7 +92,7 @@ against a single TXT record (e.g. if you request a single certificate, which is
 valid for both `example.com` and the wildcard `*.example.com`, then you will
 need to create multiple records via the ASD control panel, and then list the
 corresponding multiple keys like this:
-    ```json
+```json
     {
             "dns_api_keys": {
                     "_acme-challenge.example.com": {
@@ -100,7 +101,7 @@ corresponding multiple keys like this:
                     }
             }
     }
-    ```
+```
 
 Bugs?
 ----
