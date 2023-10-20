@@ -42,16 +42,14 @@ dns_asd_credentials = ...
 Installation
 ------------
 
-* Option 1, using the operating-system provided ("packaged") certbot.
+* It is no longer recommended to install python packages into the "system"
+  python.
 
-1. Install Certbot (for Debian-based OS e.g. Ubuntu Linux), run the following
-command (or the equivalent for your OS) as root:
-
-    `apt install --no-install-recommends certbot git python3-pip`
+1. Install Certbot using the `pip` install instructions at:
+   https://certbot.eff.org/instructions?ws=other&os=pip
 
 1. Run the following command as root:
-
-    `pip3 install git+https://github.com/tim-seoss/certbot-dns-asd.git`
+   `/opt/certbot/bin/pip install git+https://github.com/tim-seoss/certbot-dns-asd.git`
 
 Usage
 -----
