@@ -18,6 +18,27 @@ This software is Copyright 2018, 2019 by SEOSS Ltd, and offered under the GNU
 General Public License, see the file `LICENSE` (which you should have recieved
 with this software) for more information.
 
+Upgrading From v0.0.1
+---------------------
+
+Namespace handling in Certbot has changed, and this plugin has been changed
+since v0.0.1 to use the new API, so the following modifications must be made to
+existing configurations files (e.g. `/etc/letsencrypt/renewal/*.conf` files).
+
+Change the following lines:
+```
+[renewalparams]
+authenticator = certbot-dns-asd:dns
+certbot_asd:dns_credentials = ...
+```
+
+to:
+```
+[renewalparams]
+authenticator = dns-asd
+dns_asd_credentials = ...
+```
+
 Installation
 ------------
 
@@ -73,8 +94,8 @@ certificate for **both** `example.com` **and** `*.example.com`).
 1. Optionally obtain a test (Let's Encrypt staging server) certificate:
 
     ```
-    me@server:~$ certbot --staging --authenticator certbot-asd:dns \
-    --certbot-asd:dns-credentials /etc/letsencrypt/asd-dns-api/example_com.json \
+    me@server:~$ certbot --staging --authenticator dns-asd \
+    --dns-asd-credentials /etc/letsencrypt/asd-dns-api/example_com.json \
     certonly -d my-ssl-hostname.example.com -d my-other-ssl-hostname.example.com
     ```
 
