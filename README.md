@@ -14,9 +14,9 @@ The API can be used to obtain an SSL certificate from the "Let's Encrypt" servic
 License
 -------
 
-This software is Copyright 2018, 2019 by SEOSS Ltd, and offered under the GNU
-General Public License, see the file `LICENSE` (which you should have recieved
-with this software) for more information.
+This software is Copyright 2018 to 2023 by SEOSS Ltd, and offered under the GNU
+General Public License version 3, see the file `LICENSE` (which you should have
+recieved with this software) for more information.
 
 Upgrading From v0.0.1
 ---------------------
