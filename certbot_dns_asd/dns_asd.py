@@ -18,6 +18,7 @@ from certbot.plugins import dns_common
 
 LOGGER = logging.getLogger(__name__)
 
+
 @zope.interface.implementer(interfaces.IAuthenticator)
 @zope.interface.provider(interfaces.IPluginFactory)
 class Authenticator(dns_common.DNSAuthenticator):
@@ -83,8 +84,8 @@ class _AsdClient(object):
     """
     For communication with the All Secure Domains dyanmic DNS update API.
     """
+
     def __init__(self, credentials_json=None):
-        #import ipdb; ipdb.set_trace()
         import pprint
         self.cred_filename = credentials_json
         self.auth_token_map = dict()
