@@ -3,7 +3,7 @@ import os
 from setuptools import setup
 from setuptools import find_packages
 
-version = '1.0.1'
+version = '1.0.2'
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(BASE_PATH, "README.md")) as f:
