@@ -45,7 +45,8 @@ Installation
 * It is no longer recommended to install python packages into the "system"
   python.
 
-1. Install Certbot using the `pip` install instructions at:
+1. **Ignoring all references to setting up web servers**, install Certbot using
+   the `pip` install instructions at:
    https://certbot.eff.org/instructions?ws=other&os=pip
 
 1. Run the following command as root:
